@@ -15,3 +15,9 @@ go run main.go
 ```bash
 go test ./...
 ```
+
+# Generate Docs
+
+```bash
+swag init
+```
