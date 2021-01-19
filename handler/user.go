@@ -8,6 +8,19 @@ import (
 	"github.com/shkryob/goforum/utils"
 )
 
+// SignUp godoc
+// @Summary Register a new user
+// @Description Register a new user
+// @ID sign-up
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param user body userRegisterRequest true "User info for registration"
+// @Success 201 {object} userResponse
+// @Failure 400 {object} utils.Error
+// @Failure 404 {object} utils.Error
+// @Failure 500 {object} utils.Error
+// @Router /users [post]
 func (handler *Handler) SignUp(context echo.Context) error {
 	var u model.User
 	req := &userRegisterRequest{}
@@ -20,6 +33,21 @@ func (handler *Handler) SignUp(context echo.Context) error {
 	return utils.ResponseByContentType(context, http.StatusCreated, newUserResponse(&u))
 }
 
+// Login godoc
+// @Summary Login for existing user
+// @Description Login for existing user
+// @ID login
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param user body userLoginRequest true "Credentials to use"
+// @Success 200 {object} userResponse
+// @Failure 400 {object} utils.Error
+// @Failure 401 {object} utils.Error
+// @Failure 422 {object} utils.Error
+// @Failure 404 {object} utils.Error
+// @Failure 500 {object} utils.Error
+// @Router /users/login [post]
 func (handler *Handler) Login(context echo.Context) error {
 	req := &userLoginRequest{}
 	if err := req.bind(context); err != nil {
@@ -46,6 +74,21 @@ func userIDFromToken(context echo.Context) uint {
 	return id
 }
 
+// CurrentUser godoc
+// @Summary Get the current user
+// @Description Gets the currently logged-in user
+// @ID current-user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} userResponse
+// @Failure 400 {object} utils.Error
+// @Failure 401 {object} utils.Error
+// @Failure 422 {object} utils.Error
+// @Failure 404 {object} utils.Error
+// @Failure 500 {object} utils.Error
+// @Security ApiKeyAuth
+// @Router /user [get]
 func (handler *Handler) CurrentUser(context echo.Context) error {
 	u, err := handler.userStore.GetByID(userIDFromToken(context))
 	if err != nil {

@@ -1,0 +1,878 @@
+{
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "GoForum API",
+        "title": "GoForum API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "127.0.0.1:1323",
+    "basePath": "/api",
+    "paths": {
+        "/posts": {
+            "get": {
+                "description": "Get most recent posts globally. Use query parameters to filter results. Auth is optional",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "Get recent posts globally",
+                "operationId": "get-posts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Limit number of posts returned (default is 20)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset/skip number of posts (default is 0)",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.postListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a post. Auth is require",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "Create a post",
+                "operationId": "create-post",
+                "parameters": [
+                    {
+                        "description": "Post to create",
+                        "name": "post",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.postCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.singlePostResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id}": {
+            "get": {
+                "description": "Get a post. Auth not required",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "Get a post",
+                "operationId": "get-post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the post to get",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.singlePostResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update a post. Auth is required",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "Update a post",
+                "operationId": "update-post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the post to update",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Post to update",
+                        "name": "post",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.postUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.singlePostResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a post. Auth is required",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "Delete a post",
+                "operationId": "delete-post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the post to delete",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id}/comments": {
+            "get": {
+                "description": "Get the comments for a post. Auth is optional",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comment"
+                ],
+                "summary": "Get the comments for a post",
+                "operationId": "get-comments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the post that you want to get comments for",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.commentListResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a comment for a post. Auth is required",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comment"
+                ],
+                "summary": "Create a comment for a post",
+                "operationId": "add-comment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the post that you want to create a comment for",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Comment you want to create",
+                        "name": "comment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.createCommentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.singleCommentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id}/comments/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a comment for a post. Auth is required",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comment"
+                ],
+                "summary": "Delete a comment for a post",
+                "operationId": "delete-comments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the post that you want to delete a comment for",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID of the comment you want to delete",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Gets the currently logged-in user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get the current user",
+                "operationId": "current-user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.userResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "description": "Register a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Register a new user",
+                "operationId": "sign-up",
+                "parameters": [
+                    {
+                        "description": "User info for registration",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.userRegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.userResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "post": {
+                "description": "Login for existing user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Login for existing user",
+                "operationId": "login",
+                "parameters": [
+                    {
+                        "description": "Credentials to use",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.userLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.userResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handler.commentListResponse": {
+            "type": "object",
+            "properties": {
+                "comments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.commentResponse"
+                    }
+                }
+            }
+        },
+        "handler.commentResponse": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "object",
+                    "properties": {
+                        "username": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "body": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.createCommentRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "object",
+                    "required": [
+                        "body"
+                    ],
+                    "properties": {
+                        "body": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "handler.postCreateRequest": {
+            "type": "object",
+            "properties": {
+                "post": {
+                    "type": "object",
+                    "required": [
+                        "body",
+                        "title"
+                    ],
+                    "properties": {
+                        "body": {
+                            "type": "string"
+                        },
+                        "title": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "handler.postListResponse": {
+            "type": "object",
+            "properties": {
+                "posts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.postResponse"
+                    }
+                },
+                "postsCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.postResponse": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.postUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "post": {
+                    "type": "object",
+                    "properties": {
+                        "body": {
+                            "type": "string"
+                        },
+                        "title": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "handler.singleCommentResponse": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "$ref": "#/definitions/handler.commentResponse"
+                }
+            }
+        },
+        "handler.singlePostResponse": {
+            "type": "object",
+            "properties": {
+                "post": {
+                    "$ref": "#/definitions/handler.postResponse"
+                }
+            }
+        },
+        "handler.userLoginRequest": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "type": "object",
+                    "required": [
+                        "email",
+                        "password"
+                    ],
+                    "properties": {
+                        "email": {
+                            "type": "string"
+                        },
+                        "password": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "handler.userRegisterRequest": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "type": "object",
+                    "required": [
+                        "email",
+                        "password",
+                        "username"
+                    ],
+                    "properties": {
+                        "email": {
+                            "type": "string"
+                        },
+                        "password": {
+                            "type": "string"
+                        },
+                        "username": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "handler.userResponse": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "type": "object",
+                    "properties": {
+                        "email": {
+                            "type": "string"
+                        },
+                        "token": {
+                            "type": "string"
+                        },
+                        "username": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "utils.Error": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "object",
+                    "additionalProperties": true
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

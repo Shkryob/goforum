@@ -1,0 +1,575 @@
+basePath: /api
+definitions:
+  handler.commentListResponse:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/handler.commentResponse'
+        type: array
+    type: object
+  handler.commentResponse:
+    properties:
+      author:
+        properties:
+          username:
+            type: string
+        type: object
+      body:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  handler.createCommentRequest:
+    properties:
+      comment:
+        properties:
+          body:
+            type: string
+        required:
+        - body
+        type: object
+    type: object
+  handler.postCreateRequest:
+    properties:
+      post:
+        properties:
+          body:
+            type: string
+          title:
+            type: string
+        required:
+        - body
+        - title
+        type: object
+    type: object
+  handler.postListResponse:
+    properties:
+      posts:
+        items:
+          $ref: '#/definitions/handler.postResponse'
+        type: array
+      postsCount:
+        type: integer
+    type: object
+  handler.postResponse:
+    properties:
+      body:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  handler.postUpdateRequest:
+    properties:
+      post:
+        properties:
+          body:
+            type: string
+          title:
+            type: string
+        type: object
+    type: object
+  handler.singleCommentResponse:
+    properties:
+      comment:
+        $ref: '#/definitions/handler.commentResponse'
+    type: object
+  handler.singlePostResponse:
+    properties:
+      post:
+        $ref: '#/definitions/handler.postResponse'
+    type: object
+  handler.userLoginRequest:
+    properties:
+      user:
+        properties:
+          email:
+            type: string
+          password:
+            type: string
+        required:
+        - email
+        - password
+        type: object
+    type: object
+  handler.userRegisterRequest:
+    properties:
+      user:
+        properties:
+          email:
+            type: string
+          password:
+            type: string
+          username:
+            type: string
+        required:
+        - email
+        - password
+        - username
+        type: object
+    type: object
+  handler.userResponse:
+    properties:
+      user:
+        properties:
+          email:
+            type: string
+          token:
+            type: string
+          username:
+            type: string
+        type: object
+    type: object
+  utils.Error:
+    properties:
+      errors:
+        additionalProperties: true
+        type: object
+    type: object
+host: 127.0.0.1:1323
+info:
+  contact: {}
+  description: GoForum API
+  title: GoForum API
+  version: "1.0"
+paths:
+  /posts:
+    get:
+      consumes:
+      - application/json
+      description: Get most recent posts globally. Use query parameters to filter
+        results. Auth is optional
+      operationId: get-posts
+      parameters:
+      - description: Limit number of posts returned (default is 20)
+        in: query
+        name: limit
+        type: integer
+      - description: Offset/skip number of posts (default is 0)
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.postListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: Get recent posts globally
+      tags:
+      - post
+    post:
+      consumes:
+      - application/json
+      description: Create a post. Auth is require
+      operationId: create-post
+      parameters:
+      - description: Post to create
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/handler.postCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.singlePostResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a post
+      tags:
+      - post
+  /posts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a post. Auth is required
+      operationId: delete-post
+      parameters:
+      - description: ID of the post to delete
+        in: path
+        name: ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a post
+      tags:
+      - post
+    get:
+      consumes:
+      - application/json
+      description: Get a post. Auth not required
+      operationId: get-post
+      parameters:
+      - description: ID of the post to get
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.singlePostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: Get a post
+      tags:
+      - post
+    put:
+      consumes:
+      - application/json
+      description: Update a post. Auth is required
+      operationId: update-post
+      parameters:
+      - description: ID of the post to update
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: Post to update
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/handler.postUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.singlePostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a post
+      tags:
+      - post
+  /posts/{id}/comments:
+    get:
+      consumes:
+      - application/json
+      description: Get the comments for a post. Auth is optional
+      operationId: get-comments
+      parameters:
+      - description: ID of the post that you want to get comments for
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.commentListResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: Get the comments for a post
+      tags:
+      - comment
+    post:
+      consumes:
+      - application/json
+      description: Create a comment for a post. Auth is required
+      operationId: add-comment
+      parameters:
+      - description: ID of the post that you want to create a comment for
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: Comment you want to create
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/handler.createCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.singleCommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a comment for a post
+      tags:
+      - comment
+  /posts/{id}/comments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a comment for a post. Auth is required
+      operationId: delete-comments
+      parameters:
+      - description: ID of the post that you want to delete a comment for
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: ID of the comment you want to delete
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a comment for a post
+      tags:
+      - comment
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: Gets the currently logged-in user
+      operationId: current-user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.userResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get the current user
+      tags:
+      - user
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      operationId: sign-up
+      parameters:
+      - description: User info for registration
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handler.userRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.userResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: Register a new user
+      tags:
+      - user
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Login for existing user
+      operationId: login
+      parameters:
+      - description: Credentials to use
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handler.userLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.userResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: Login for existing user
+      tags:
+      - user
+schemes:
+- http
+- https
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
