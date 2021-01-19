@@ -17,14 +17,14 @@ func (handler *Handler) GetPost(context echo.Context) error {
 	post, err := handler.postStore.GetById(id)
 
 	if err != nil {
-		return context.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
 
 	if post == nil {
-		return context.JSON(http.StatusNotFound, utils.NotFound())
+		return utils.ResponseByContentType(context, http.StatusNotFound, utils.NotFound())
 	}
 
-	return context.JSON(http.StatusOK, newPostResponse(context, post))
+	return utils.ResponseByContentType(context, http.StatusOK, newPostResponse(context, post))
 }
 
 func (handler *Handler) GetPosts(context echo.Context) error {
@@ -45,7 +45,7 @@ func (handler *Handler) GetPosts(context echo.Context) error {
 
 	posts, count, err = handler.postStore.List(offset, limit)
 
-	return context.JSON(http.StatusOK, newPostListResponse(posts, count))
+	return utils.ResponseByContentType(context, http.StatusOK, newPostListResponse(posts, count))
 }
 
 func (handler *Handler) CreatePost(context echo.Context) error {
@@ -53,17 +53,17 @@ func (handler *Handler) CreatePost(context echo.Context) error {
 
 	req := &postCreateRequest{}
 	if err := req.bind(context, &post); err != nil {
-		return context.JSON(http.StatusUnprocessableEntity, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
 	}
 
 	post.UserID = userIDFromToken(context)
 
 	err := handler.postStore.CreatePost(&post)
 	if err != nil {
-		return context.JSON(http.StatusUnprocessableEntity, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
 	}
 
-	return context.JSON(http.StatusCreated, newPostResponse(context, &post))
+	return utils.ResponseByContentType(context, http.StatusCreated, newPostResponse(context, &post))
 }
 
 func (handler *Handler) UpdatePost(context echo.Context) error {
@@ -72,25 +72,25 @@ func (handler *Handler) UpdatePost(context echo.Context) error {
 
 	post, err := handler.postStore.GetById(id)
 	if err != nil {
-		return context.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
 
 	if post == nil {
-		return context.JSON(http.StatusNotFound, utils.NotFound())
+		return utils.ResponseByContentType(context, http.StatusNotFound, utils.NotFound())
 	}
 
 	req := &postUpdateRequest{}
 	req.populate(post)
 
 	if err := req.bind(context, post); err != nil {
-		return context.JSON(http.StatusUnprocessableEntity, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
 	}
 
 	if err = handler.postStore.UpdatePost(post); err != nil {
-		return context.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
 
-	return context.JSON(http.StatusOK, newPostResponse(context, post))
+	return utils.ResponseByContentType(context, http.StatusOK, newPostResponse(context, post))
 }
 
 func (handler *Handler) DeletePost(context echo.Context) error {
@@ -99,19 +99,19 @@ func (handler *Handler) DeletePost(context echo.Context) error {
 
 	post, err := handler.postStore.GetById(id)
 	if err != nil {
-		return context.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
 
 	if post == nil {
-		return context.JSON(http.StatusNotFound, utils.NotFound())
+		return utils.ResponseByContentType(context, http.StatusNotFound, utils.NotFound())
 	}
 
 	err = handler.postStore.DeletePost(post)
 	if err != nil {
-		return context.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
 
-	return context.JSON(http.StatusOK, map[string]interface{}{"result": "ok"})
+	return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})
 }
 
 func (handler *Handler) AddComment(context echo.Context) error {
@@ -120,27 +120,27 @@ func (handler *Handler) AddComment(context echo.Context) error {
 
 	post, err := handler.postStore.GetById(id)
 	if err != nil {
-		return context.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
 
 	if post == nil {
-		return context.JSON(http.StatusNotFound, utils.NotFound())
+		return utils.ResponseByContentType(context, http.StatusNotFound, utils.NotFound())
 	}
 
 	var cm model.Comment
 
 	req := &createCommentRequest{}
 	if err := req.bind(context, &cm); err != nil {
-		return context.JSON(http.StatusUnprocessableEntity, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
 	}
 
 	cm.UserID = userIDFromToken(context)
 
 	if err = handler.postStore.AddComment(post, &cm); err != nil {
-		return context.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
 
-	return context.JSON(http.StatusCreated, newCommentResponse(context, &cm))
+	return utils.ResponseByContentType(context, http.StatusCreated, newCommentResponse(context, &cm))
 }
 
 func (handler *Handler) GetComments(context echo.Context) error {
@@ -149,10 +149,10 @@ func (handler *Handler) GetComments(context echo.Context) error {
 
 	cm, err := handler.postStore.GetCommentsByPostId(id)
 	if err != nil {
-		return context.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
 
-	return context.JSON(http.StatusOK, newCommentListResponse(context, cm))
+	return utils.ResponseByContentType(context, http.StatusOK, newCommentListResponse(context, cm))
 }
 
 func (handler *Handler) DeleteComment(context echo.Context) error {
@@ -160,25 +160,25 @@ func (handler *Handler) DeleteComment(context echo.Context) error {
 	id := uint(id64)
 
 	if err != nil {
-		return context.JSON(http.StatusBadRequest, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusBadRequest, utils.NewError(err))
 	}
 
 	cm, err := handler.postStore.GetCommentByID(id)
 	if err != nil {
-		return context.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
 
 	if cm == nil {
-		return context.JSON(http.StatusNotFound, utils.NotFound())
+		return utils.ResponseByContentType(context, http.StatusNotFound, utils.NotFound())
 	}
 
 	if cm.UserID != userIDFromToken(context) {
-		return context.JSON(http.StatusUnauthorized, utils.NewError(errors.New("unauthorized action")))
+		return utils.ResponseByContentType(context, http.StatusUnauthorized, utils.NewError(errors.New("unauthorized action")))
 	}
 
 	if err := handler.postStore.DeleteComment(cm); err != nil {
-		return context.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
 
-	return context.JSON(http.StatusOK, map[string]interface{}{"result": "ok"})
+	return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})
 }

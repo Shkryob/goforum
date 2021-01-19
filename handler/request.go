@@ -13,20 +13,20 @@ type userRegisterRequest struct {
 	} `json:"user"`
 }
 
-func (r *userRegisterRequest) bind(c echo.Context, u *model.User) error {
-	if err := c.Bind(r); err != nil {
+func (request *userRegisterRequest) bind(context echo.Context, user *model.User) error {
+	if err := context.Bind(request); err != nil {
 		return err
 	}
-	if err := c.Validate(r); err != nil {
+	if err := context.Validate(request); err != nil {
 		return err
 	}
-	u.Username = r.User.Username
-	u.Email = r.User.Email
-	h, err := u.HashPassword(r.User.Password)
+	user.Username = request.User.Username
+	user.Email = request.User.Email
+	h, err := user.HashPassword(request.User.Password)
 	if err != nil {
 		return err
 	}
-	u.Password = h
+	user.Password = h
 	return nil
 }
 
@@ -54,15 +54,15 @@ type postCreateRequest struct {
 	} `json:"post"`
 }
 
-func (r *postCreateRequest) bind(c echo.Context, a *model.Post) error {
-	if err := c.Bind(r); err != nil {
+func (request *postCreateRequest) bind(context echo.Context, a *model.Post) error {
+	if err := context.Bind(request); err != nil {
 		return err
 	}
-	if err := c.Validate(r); err != nil {
+	if err := context.Validate(request); err != nil {
 		return err
 	}
-	a.Title = r.Post.Title
-	a.Body = r.Post.Body
+	a.Title = request.Post.Title
+	a.Body = request.Post.Body
 	return nil
 }
 
@@ -73,20 +73,20 @@ type postUpdateRequest struct {
 	} `json:"post"`
 }
 
-func (r *postUpdateRequest) populate(a *model.Post) {
-	r.Post.Title = a.Title
-	r.Post.Body = a.Body
+func (request *postUpdateRequest) populate(post *model.Post) {
+	request.Post.Title = post.Title
+	request.Post.Body = post.Body
 }
 
-func (r *postUpdateRequest) bind(c echo.Context, a *model.Post) error {
-	if err := c.Bind(r); err != nil {
+func (request *postUpdateRequest) bind(context echo.Context, a *model.Post) error {
+	if err := context.Bind(request); err != nil {
 		return err
 	}
-	if err := c.Validate(r); err != nil {
+	if err := context.Validate(request); err != nil {
 		return err
 	}
-	a.Title = r.Post.Title
-	a.Body = r.Post.Body
+	a.Title = request.Post.Title
+	a.Body = request.Post.Body
 	return nil
 }
 
@@ -96,13 +96,13 @@ type createCommentRequest struct {
 	} `json:"comment"`
 }
 
-func (r *createCommentRequest) bind(c echo.Context, cm *model.Comment) error {
-	if err := c.Bind(r); err != nil {
+func (request *createCommentRequest) bind(context echo.Context, cm *model.Comment) error {
+	if err := context.Bind(request); err != nil {
 		return err
 	}
-	if err := c.Validate(r); err != nil {
+	if err := context.Validate(request); err != nil {
 		return err
 	}
-	cm.Body = r.Comment.Body
+	cm.Body = request.Comment.Body
 	return nil
 }

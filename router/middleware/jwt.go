@@ -32,15 +32,15 @@ func JWT(key interface{}) echo.MiddlewareFunc {
 func JWTWithConfig(config JWTConfig) echo.MiddlewareFunc {
 	extractor := jwtFromHeader("Authorization", "Token")
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			auth, err := extractor(c)
+		return func(context echo.Context) error {
+			auth, err := extractor(context)
 			if err != nil {
 				if config.Skipper != nil {
-					if config.Skipper(c) {
-						return next(c)
+					if config.Skipper(context) {
+						return next(context)
 					}
 				}
-				return c.JSON(http.StatusUnauthorized, utils.NewError(err))
+				return utils.ResponseByContentType(context, http.StatusUnauthorized, utils.NewError(err))
 			}
 			token, err := jwt.Parse(auth, func(token *jwt.Token) (interface{}, error) {
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -49,14 +49,14 @@ func JWTWithConfig(config JWTConfig) echo.MiddlewareFunc {
 				return config.SigningKey, nil
 			})
 			if err != nil {
-				return c.JSON(http.StatusForbidden, utils.NewError(ErrJWTInvalid))
+				return utils.ResponseByContentType(context, http.StatusForbidden, utils.NewError(ErrJWTInvalid))
 			}
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 				userID := uint(claims["id"].(float64))
-				c.Set("user", userID)
-				return next(c)
+				context.Set("user", userID)
+				return next(context)
 			}
-			return c.JSON(http.StatusForbidden, utils.NewError(ErrJWTInvalid))
+			return utils.ResponseByContentType(context, http.StatusForbidden, utils.NewError(ErrJWTInvalid))
 		}
 	}
 }

@@ -19,7 +19,7 @@ type singlePostResponse struct {
 }
 
 type postListResponse struct {
-	Posts      []*postResponse `json:"postss"`
+	Posts      []*postResponse `json:"posts"`
 	PostsCount int             `json:"postsCount"`
 }
 
