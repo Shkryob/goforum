@@ -18,7 +18,7 @@ func NewPostStore(db *gorm.DB) *PostStore {
 func (as *PostStore) GetById(id uint) (*model.Post, error) {
 	var m model.Post
 
-	err := as.db.Where(id).First(&m).Error
+	err := as.db.Where(id).Preload("User").First(&m).Error
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			return nil, nil
@@ -51,7 +51,7 @@ func (as *PostStore) CreatePost(a *model.Post) error {
 		return err
 	}
 
-	if err := tx.Where(a.ID).Find(&a).Error; err != nil {
+	if err := tx.Where(a.ID).Preload("User").Find(&a).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -66,7 +66,7 @@ func (as *PostStore) UpdatePost(a *model.Post) error {
 		return err
 	}
 
-	if err := tx.Where(a.ID).Find(a).Error; err != nil {
+	if err := tx.Where(a.ID).Preload("User").Find(a).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

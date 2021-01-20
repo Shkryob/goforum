@@ -12,6 +12,9 @@ type postResponse struct {
 	ID    uint   `json:"id"`
 	Title string `json:"title"`
 	Body  string `json:"body"`
+	User  struct {
+		Username string `json:"username"`
+	} `json:"user"`
 }
 
 type singlePostResponse struct {
@@ -28,6 +31,7 @@ func newPostResponse(c echo.Context, a *model.Post) *singlePostResponse {
 	ar.ID = a.ID
 	ar.Title = a.Title
 	ar.Body = a.Body
+	ar.User.Username = a.User.Username
 	return &singlePostResponse{ar}
 }
 
@@ -39,6 +43,7 @@ func newPostListResponse(posts []model.Post, count int) *postListResponse {
 		ar.ID = a.ID
 		ar.Title = a.Title
 		ar.Body = a.Body
+		ar.User.Username = a.User.Username
 		r.Posts = append(r.Posts, ar)
 	}
 	r.PostsCount = count
@@ -50,9 +55,9 @@ type commentResponse struct {
 	Body      string    `json:"body"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
-	Author    struct {
+	User      struct {
 		Username string `json:"username"`
-	} `json:"author"`
+	} `json:"user"`
 }
 
 type singleCommentResponse struct {
@@ -69,7 +74,7 @@ func newCommentResponse(c echo.Context, cm *model.Comment) *singleCommentRespons
 	comment.Body = cm.Body
 	comment.CreatedAt = cm.CreatedAt
 	comment.UpdatedAt = cm.UpdatedAt
-	comment.Author.Username = cm.User.Username
+	comment.User.Username = cm.User.Username
 	return &singleCommentResponse{comment}
 }
 
@@ -82,7 +87,7 @@ func newCommentListResponse(c echo.Context, comments []model.Comment) *commentLi
 		cr.Body = i.Body
 		cr.CreatedAt = i.CreatedAt
 		cr.UpdatedAt = i.UpdatedAt
-		cr.Author.Username = i.User.Username
+		cr.User.Username = i.User.Username
 
 		r.Comments = append(r.Comments, cr)
 	}

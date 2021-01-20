@@ -21,3 +21,9 @@ go test ./...
 ```bash
 swag init
 ```
+
+### Tests
+
+```bash
+go test ./...
+```
