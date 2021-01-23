@@ -11,6 +11,7 @@ func (handler *Handler) Register(v1 *echo.Group) {
 	guestUsers := v1.Group("/users")
 	guestUsers.POST("", handler.SignUp)
 	guestUsers.POST("/login", handler.Login)
+	guestUsers.GET("/oauth/google", handler.OauthGoogle)
 
 	user := v1.Group("/user", jwtMiddleware)
 	user.GET("", handler.CurrentUser)

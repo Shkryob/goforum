@@ -19,6 +19,7 @@ require (
 	github.com/swaggo/swag v1.7.0
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
+	golang.org/x/oauth2 v0.0.0-20210113205817-d3ed898aa8a3
 	golang.org/x/text v0.3.5 // indirect
 	golang.org/x/tools v0.0.0-20210119195117-a46736d9d962 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0

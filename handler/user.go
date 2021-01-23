@@ -1,11 +1,16 @@
 package handler
 
 import (
+	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/shkryob/goforum/model"
 	"github.com/shkryob/goforum/utils"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
 // SignUp godoc
@@ -98,4 +103,68 @@ func (handler *Handler) CurrentUser(context echo.Context) error {
 		return utils.ResponseByContentType(context, http.StatusNotFound, utils.NotFound())
 	}
 	return utils.ResponseByContentType(context, http.StatusOK, newUserResponse(u))
+}
+
+func (handler *Handler) OauthLoginOrSignUp(context echo.Context, email string) error {
+	u, _ := handler.userStore.GetByEmail(email)
+	if u == nil {
+		u = new(model.User)
+		u.Email = email
+		if err := handler.userStore.Create(u); err != nil {
+			return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
+		}
+	}
+	return utils.ResponseByContentType(context, http.StatusOK, newUserResponse(u))
+}
+
+func getUserInfoFromGoogle(conf *oauth2.Config, tok *oauth2.Token) map[string]interface{} {
+	client := conf.Client(oauth2.NoContext, tok)
+	response, _ := client.Get(`https://accounts.google.com/.well-known/openid-configuration`)
+	body, _ := ioutil.ReadAll(response.Body)
+	response.Body.Close()
+
+	json := utils.JsonToMap(body)
+	response, _ = client.Get(json[`userinfo_endpoint`].(string))
+	body, _ = ioutil.ReadAll(response.Body)
+	response.Body.Close()
+
+	json = utils.JsonToMap(body)
+	fmt.Println(json[`email`].(string))
+	return json
+}
+
+func (handler *Handler) OauthGoogle(context echo.Context) error {
+	// Your credentials should be obtained from the Google
+	// Developer Console (https://console.developers.google.com).
+	conf := &oauth2.Config{
+		ClientID:     "1094361413163-ficfg5adh165igugo99mt5ohrf7b8v8v.apps.googleusercontent.com",
+		ClientSecret: "HcLI4eidNT7ApVMXWoDyYQlD",
+		RedirectURL:  "http://127.0.0.1:1323/api/users/oauth/google",
+		Scopes: []string{
+			"https://www.googleapis.com/auth/plus.profile.emails.read",
+			"https://www.googleapis.com/auth/plus.login",
+			"https://www.googleapis.com/auth/plus.me",
+			"https://www.googleapis.com/auth/userinfo.email",
+		},
+		Endpoint: google.Endpoint,
+	}
+
+	if context.QueryParam("code") != "" {
+		// Handle the exchange code to initiate a transport.
+		tok, err := conf.Exchange(oauth2.NoContext, context.QueryParam("code"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		json := getUserInfoFromGoogle(conf, tok)
+		handler.OauthLoginOrSignUp(context, json[`email`].(string))
+		return context.Redirect(http.StatusSeeOther, "/api/posts")
+	} else {
+		// Redirect user to Google's consent page to ask for permission
+		// for the scopes specified above.
+		url := conf.AuthCodeURL("state")
+		fmt.Printf("Visit the URL for the auth dialog: %v", url)
+		return context.Redirect(http.StatusSeeOther, url)
+	}
+
+	return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})
 }
