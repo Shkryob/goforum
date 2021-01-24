@@ -137,9 +137,9 @@ func (handler *Handler) OauthGoogle(context echo.Context) error {
 	// Your credentials should be obtained from the Google
 	// Developer Console (https://console.developers.google.com).
 	conf := &oauth2.Config{
-		ClientID:     "1094361413163-ficfg5adh165igugo99mt5ohrf7b8v8v.apps.googleusercontent.com",
-		ClientSecret: "HcLI4eidNT7ApVMXWoDyYQlD",
-		RedirectURL:  "http://127.0.0.1:1323/api/users/oauth/google",
+		ClientID:     handler.config.Oauth_Google_Client_Id,
+		ClientSecret: handler.config.Oauth_Google_Client_Secret,
+		RedirectURL:  handler.config.Oauth_Google_Client_Redirect_Url,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/plus.profile.emails.read",
 			"https://www.googleapis.com/auth/plus.login",

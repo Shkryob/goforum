@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"github.com/shkryob/goforum/config"
 	"github.com/shkryob/goforum/model"
 )
 
 type Handler struct {
+	config    config.Configuration
 	userStore UserStore
 	postStore PostStore
 }
@@ -30,8 +32,9 @@ type UserStore interface {
 	Update(*model.User) error
 }
 
-func NewHandler(us UserStore, ps PostStore) *Handler {
+func NewHandler(config config.Configuration, us UserStore, ps PostStore) *Handler {
 	return &Handler{
+		config:    config,
 		userStore: us,
 		postStore: ps,
 	}

@@ -1,0 +1,5 @@
+{
+    "Oauth_Google_Client_Id": "",
+    "Oauth_Google_Client_Secret": "",
+    "Oauth_Google_Client_Redirect_Url": "http://127.0.0.1:1323/api/users/oauth/google"
+}

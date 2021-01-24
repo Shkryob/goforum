@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/shkryob/goforum/config"
 	"github.com/shkryob/goforum/db"
 	"github.com/shkryob/goforum/handler"
 	"github.com/shkryob/goforum/router"
@@ -35,10 +36,11 @@ func main() {
 
 	d := db.New()
 	db.AutoMigrate(d)
+	configuration := config.ReadConfig()
 
 	us := store.NewUserStore(d)
 	as := store.NewPostStore(d)
-	h := handler.NewHandler(us, as)
+	h := handler.NewHandler(configuration, us, as)
 	h.Register(v1)
 	r.Logger.Fatal(r.Start("127.0.0.1:1323"))
 }
