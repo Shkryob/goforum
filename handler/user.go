@@ -10,6 +10,7 @@ import (
 	"github.com/shkryob/goforum/model"
 	"github.com/shkryob/goforum/utils"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/google"
 )
 
@@ -130,6 +131,7 @@ func getUserInfoFromGoogle(conf *oauth2.Config, tok *oauth2.Token) map[string]in
 
 	json = utils.JsonToMap(body)
 	fmt.Println(json[`email`].(string))
+
 	return json
 }
 
@@ -156,6 +158,50 @@ func (handler *Handler) OauthGoogle(context echo.Context) error {
 			log.Fatal(err)
 		}
 		json := getUserInfoFromGoogle(conf, tok)
+		handler.OauthLoginOrSignUp(context, json[`email`].(string))
+		return context.Redirect(http.StatusSeeOther, "/api/posts")
+	} else {
+		// Redirect user to Google's consent page to ask for permission
+		// for the scopes specified above.
+		url := conf.AuthCodeURL("state")
+		fmt.Printf("Visit the URL for the auth dialog: %v", url)
+		return context.Redirect(http.StatusSeeOther, url)
+	}
+
+	return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})
+}
+
+func getUserInfoFromFacebook(conf *oauth2.Config, tok *oauth2.Token) map[string]interface{} {
+	client := conf.Client(oauth2.NoContext, tok)
+
+	response, _ := client.Get(`https://graph.facebook.com/me?fields=email,name&access_token=` + tok.AccessToken)
+	body, _ := ioutil.ReadAll(response.Body)
+
+	json := utils.JsonToMap(body)
+	response.Body.Close()
+
+	return json
+}
+
+func (handler *Handler) OauthFacebook(context echo.Context) error {
+	conf := &oauth2.Config{
+		ClientID:     handler.config.Oauth_Facebook_Client_Id,
+		ClientSecret: handler.config.Oauth_Facebook_Client_Secret,
+		RedirectURL:  handler.config.Oauth_Facebook_Client_Redirect_Url,
+		Scopes: []string{
+			"email",
+			"public_profile",
+		},
+		Endpoint: facebook.Endpoint,
+	}
+
+	if context.QueryParam("code") != "" {
+		// Handle the exchange code to initiate a transport.
+		tok, err := conf.Exchange(oauth2.NoContext, context.QueryParam("code"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		json := getUserInfoFromFacebook(conf, tok)
 		handler.OauthLoginOrSignUp(context, json[`email`].(string))
 		return context.Redirect(http.StatusSeeOther, "/api/posts")
 	} else {

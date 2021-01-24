@@ -2,3 +2,4 @@
 goforum.db
 goforum_test.db
 .env
+.cache

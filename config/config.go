@@ -13,6 +13,10 @@ type Configuration struct {
 	Oauth_Google_Client_Id           string
 	Oauth_Google_Client_Secret       string
 	Oauth_Google_Client_Redirect_Url string
+
+	Oauth_Facebook_Client_Id           string
+	Oauth_Facebook_Client_Secret       string
+	Oauth_Facebook_Client_Redirect_Url string
 }
 
 func ReadConfig() Configuration {

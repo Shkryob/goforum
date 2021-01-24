@@ -1,5 +1,9 @@
 {
     "Oauth_Google_Client_Id": "",
     "Oauth_Google_Client_Secret": "",
-    "Oauth_Google_Client_Redirect_Url": "http://127.0.0.1:1323/api/users/oauth/google"
+    "Oauth_Google_Client_Redirect_Url": "https://127.0.0.1:1323/api/users/oauth/google",
+
+    "Oauth_Facebook_Client_Id": "",
+    "Oauth_Facebook_Client_Secret": "",
+    "Oauth_Facebook_Client_Redirect_Url": "https://127.0.0.1:1323/api/users/oauth/facebook"
 }

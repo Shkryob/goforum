@@ -42,5 +42,5 @@ func main() {
 	as := store.NewPostStore(d)
 	h := handler.NewHandler(configuration, us, as)
 	h.Register(v1)
-	r.Logger.Fatal(r.Start("127.0.0.1:1323"))
+	r.Logger.Fatal(r.StartTLS(":1323", "certs/cert.pem", "certs/key.pem"))
 }
