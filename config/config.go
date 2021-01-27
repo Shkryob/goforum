@@ -17,6 +17,11 @@ type Configuration struct {
 	Oauth_Facebook_Client_Id           string
 	Oauth_Facebook_Client_Secret       string
 	Oauth_Facebook_Client_Redirect_Url string
+
+	Oauth_Twitter_Client_Id           string
+	Oauth_Twitter_Client_Secret       string
+	Oauth_Twitter_Client_Redirect_Url string
+	Oauth_Twitter_Client_Bearer_Token string
 }
 
 func ReadConfig() Configuration {

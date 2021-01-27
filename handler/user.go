@@ -12,6 +12,9 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/google"
+
+	"github.com/dghubble/oauth1"
+	"github.com/dghubble/oauth1/twitter"
 )
 
 // SignUp godoc
@@ -111,6 +114,7 @@ func (handler *Handler) OauthLoginOrSignUp(context echo.Context, email string) e
 	if u == nil {
 		u = new(model.User)
 		u.Email = email
+		u.Username = email
 		if err := handler.userStore.Create(u); err != nil {
 			return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
 		}
@@ -205,11 +209,46 @@ func (handler *Handler) OauthFacebook(context echo.Context) error {
 		handler.OauthLoginOrSignUp(context, json[`email`].(string))
 		return context.Redirect(http.StatusSeeOther, "/api/posts")
 	} else {
-		// Redirect user to Google's consent page to ask for permission
-		// for the scopes specified above.
 		url := conf.AuthCodeURL("state")
 		fmt.Printf("Visit the URL for the auth dialog: %v", url)
 		return context.Redirect(http.StatusSeeOther, url)
+	}
+
+	return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})
+}
+
+func getUserInfoFromTwitter(conf *oauth1.Config, tok *oauth1.Token) map[string]interface{} {
+	httpClient := conf.Client(oauth2.NoContext, tok)
+
+	// response, _ := httpClient.Get(`https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true&access_token=` + tok.AccessToken)
+	response, _ := httpClient.Get(`https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true`)
+	body, _ := ioutil.ReadAll(response.Body)
+
+	json := utils.JsonToMap(body)
+	response.Body.Close()
+
+	return json
+}
+
+func (handler *Handler) OauthTwitter(context echo.Context) error {
+	config := &oauth1.Config{
+		ConsumerKey:    handler.config.Oauth_Twitter_Client_Id,
+		ConsumerSecret: handler.config.Oauth_Twitter_Client_Secret,
+		CallbackURL:    handler.config.Oauth_Twitter_Client_Redirect_Url,
+		Endpoint:       twitter.AuthorizeEndpoint,
+	}
+	requestToken, requestSecret, _ := config.RequestToken()
+
+	if context.QueryParam("oauth_verifier") != "" {
+		requestToken, verifier, _ := oauth1.ParseAuthorizationCallback(context.Request())
+		accessToken, accessSecret, _ := config.AccessToken(requestToken, requestSecret, verifier)
+		token := oauth1.NewToken(accessToken, accessSecret)
+		json := getUserInfoFromTwitter(config, token)
+		handler.OauthLoginOrSignUp(context, json[`email`].(string))
+		return context.Redirect(http.StatusSeeOther, "/api/posts")
+	} else {
+		authorizationURL, _ := config.AuthorizationURL(requestToken)
+		return context.Redirect(http.StatusSeeOther, authorizationURL.String())
 	}
 
 	return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})

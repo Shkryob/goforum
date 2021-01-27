@@ -6,5 +6,10 @@
     
     "Oauth_Facebook_Client_Id": "",
     "Oauth_Facebook_Client_Secret": "",
-    "Oauth_Facebook_Client_Redirect_Url": ""
+    "Oauth_Facebook_Client_Redirect_Url": "",
+
+    "Oauth_Twitter_Client_Id": "",
+    "Oauth_Twitter_Client_Secret": "",
+    "Oauth_Twitter_Client_Bearer_Token": "",
+    "Oauth_Twitter_Client_Redirect_Url": "https://127.0.0.1:1323/api/users/oauth/twitter"
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/labstack/echo/v4"
+	"github.com/shkryob/goforum/config"
 	"github.com/shkryob/goforum/db"
 	"github.com/shkryob/goforum/model"
 	"github.com/shkryob/goforum/router"
@@ -40,7 +41,8 @@ func setup() {
 	db.AutoMigrate(d)
 	us = store.NewUserStore(d)
 	as = store.NewPostStore(d)
-	h = NewHandler(us, as)
+	conf := config.ReadConfig()
+	h = NewHandler(conf, us, as)
 	e = router.New()
 	loadFixtures()
 }
