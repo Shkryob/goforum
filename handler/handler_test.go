@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"fmt"
+	"github.com/labstack/gommon/log"
 	"os"
 	"testing"
 
@@ -50,7 +50,7 @@ func setup() {
 func tearDown() {
 	_ = d.Close()
 	if err := db.DropTestDB(); err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 }
 

@@ -6,6 +6,7 @@ package docs
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/labstack/gommon/log"
 	"strings"
 
 	"github.com/alecthomas/template"
@@ -915,7 +916,10 @@ func (s *s) ReadDoc() string {
 
 	t, err := template.New("swagger_info").Funcs(template.FuncMap{
 		"marshal": func(v interface{}) string {
-			a, _ := json.Marshal(v)
+			a, err := json.Marshal(v)
+			if err != nil {
+				log.Fatal(err)
+			}
 			return string(a)
 		},
 	}).Parse(doc)
