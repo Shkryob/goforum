@@ -1,7 +1,7 @@
 package db
 
 import (
-	"fmt"
+	"github.com/labstack/gommon/log"
 
 	"os"
 
@@ -13,7 +13,7 @@ import (
 func New() *gorm.DB {
 	db, err := gorm.Open("sqlite3", "./goforum.db")
 	if err != nil {
-		fmt.Println("storage err: ", err)
+		log.Fatal("storage err: ", err)
 	}
 	db.DB().SetMaxIdleConns(3)
 	db.LogMode(true)
@@ -23,7 +23,7 @@ func New() *gorm.DB {
 func TestDB() *gorm.DB {
 	db, err := gorm.Open("sqlite3", "./goforum_test.db")
 	if err != nil {
-		fmt.Println("storage err: ", err)
+		log.Fatal("storage err: ", err)
 	}
 	db.DB().SetMaxIdleConns(3)
 	db.LogMode(false)

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -126,17 +125,22 @@ func (handler *Handler) OauthLoginOrSignUp(context echo.Context, email string) e
 
 func (handler *Handler) getUserInfoFromGoogle(conf *oauth2.Config, tok *oauth2.Token) map[string]interface{} {
 	client := conf.Client(oauth2.NoContext, tok)
-	response, _ := client.Get(handler.config.Oauth_Google_Open_Id_Config_Url)
+	response, err := client.Get(handler.config.Oauth_Google_Open_Id_Config_Url)
+	if err != nil {
+		log.Println(err)
+	}
 	body, _ := ioutil.ReadAll(response.Body)
 	response.Body.Close()
 
 	json := utils.JsonToMap(body)
-	response, _ = client.Get(json[`userinfo_endpoint`].(string))
+	response, err2 := client.Get(json[`userinfo_endpoint`].(string))
+	if err2 != nil {
+		log.Println(err2)
+	}
 	body, _ = ioutil.ReadAll(response.Body)
 	response.Body.Close()
 
 	json = utils.JsonToMap(body)
-	fmt.Println(json[`email`].(string))
 
 	return json
 }
@@ -159,7 +163,10 @@ func (handler *Handler) OauthGoogle(context echo.Context) error {
 			log.Fatal(err)
 		}
 		json := handler.getUserInfoFromGoogle(conf, tok)
-		handler.OauthLoginOrSignUp(context, json[`email`].(string))
+		err2 := handler.OauthLoginOrSignUp(context, json[`email`].(string))
+		if err2 != nil {
+			log.Println(err2)
+		}
 
 		return context.Redirect(http.StatusSeeOther, handler.config.Auth_Redirect_Url)
 	} else {
@@ -169,8 +176,6 @@ func (handler *Handler) OauthGoogle(context echo.Context) error {
 
 		return context.Redirect(http.StatusSeeOther, url)
 	}
-
-	return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})
 }
 
 func (handler *Handler) getUserInfoFromFacebook(conf *oauth2.Config, tok *oauth2.Token) map[string]interface{} {
@@ -201,7 +206,10 @@ func (handler *Handler) OauthFacebook(context echo.Context) error {
 			log.Fatal(err)
 		}
 		json := handler.getUserInfoFromFacebook(conf, tok)
-		handler.OauthLoginOrSignUp(context, json[`email`].(string))
+		err2 := handler.OauthLoginOrSignUp(context, json[`email`].(string))
+		if err2 != nil {
+			log.Println(err2)
+		}
 
 		return context.Redirect(http.StatusSeeOther, handler.config.Auth_Redirect_Url)
 	} else {
@@ -209,8 +217,6 @@ func (handler *Handler) OauthFacebook(context echo.Context) error {
 
 		return context.Redirect(http.StatusSeeOther, url)
 	}
-
-	return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})
 }
 
 func (handler *Handler) getUserInfoFromTwitter(conf *oauth1.Config, tok *oauth1.Token) map[string]interface{} {
@@ -232,18 +238,27 @@ func (handler *Handler) OauthTwitter(context echo.Context) error {
 		CallbackURL:    handler.config.Oauth_Twitter_Client_Redirect_Url,
 		Endpoint:       twitter.AuthorizeEndpoint,
 	}
-	requestToken, requestSecret, _ := config.RequestToken()
+	requestToken, requestSecret, err := config.RequestToken()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if context.QueryParam("oauth_verifier") != "" {
 		requestToken, verifier, _ := oauth1.ParseAuthorizationCallback(context.Request())
 		accessToken, accessSecret, _ := config.AccessToken(requestToken, requestSecret, verifier)
 		token := oauth1.NewToken(accessToken, accessSecret)
 		json := handler.getUserInfoFromTwitter(config, token)
-		handler.OauthLoginOrSignUp(context, json[`email`].(string))
+		err2 := handler.OauthLoginOrSignUp(context, json[`email`].(string))
+		if err2 != nil {
+			log.Println(err2)
+		}
 
 		return context.Redirect(http.StatusSeeOther, handler.config.Auth_Redirect_Url)
 	} else {
-		authorizationURL, _ := config.AuthorizationURL(requestToken)
+		authorizationURL, err := config.AuthorizationURL(requestToken)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		return context.Redirect(http.StatusSeeOther, authorizationURL.String())
 	}

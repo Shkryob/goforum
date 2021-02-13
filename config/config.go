@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"github.com/labstack/gommon/log"
 	"os"
 
 	"github.com/gosidekick/goconfig"
@@ -40,7 +40,7 @@ func ReadConfig() Configuration {
 
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading .env file")
+		log.Info("Error loading .env file")
 	}
 	configuration := Configuration{}
 
@@ -49,7 +49,7 @@ func ReadConfig() Configuration {
 
 	err = goconfig.Parse(&configuration)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	//Load env specific configuration on top
@@ -57,7 +57,7 @@ func ReadConfig() Configuration {
 
 	err = goconfig.Parse(&configuration)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	return configuration
