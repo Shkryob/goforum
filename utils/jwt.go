@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/labstack/gommon/log"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -13,6 +14,9 @@ func GenerateJWT(id uint) string {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["id"] = id
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
-	t, _ := token.SignedString(JWTSecret)
+	t, err := token.SignedString(JWTSecret)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return t
 }
