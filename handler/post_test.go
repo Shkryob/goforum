@@ -102,6 +102,28 @@ func TestUpdatePostsCaseSuccess(t *testing.T) {
 	}
 }
 
+func TestUpdatePostsCaseUnauthorized(t *testing.T) {
+	tearDown()
+	setup()
+	var (
+		reqJSON = `{"post":{"title":"post1 part 2"}}`
+	)
+	jwtMiddleware := middleware.JWT(utils.JWTSecret)
+	req := httptest.NewRequest(echo.PUT, "/api/posts/:post_id", strings.NewReader(reqJSON))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(echo.HeaderAuthorization, authHeader(utils.GenerateJWT(2)))
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/api/posts/:post_id")
+	c.SetParamNames("post_id")
+	c.SetParamValues("1")
+	err := jwtMiddleware(func(context echo.Context) error {
+		return h.UpdatePost(c)
+	})(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+}
+
 func TestDeletePostCaseSuccess(t *testing.T) {
 	tearDown()
 	setup()
