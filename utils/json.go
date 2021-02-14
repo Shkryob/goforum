@@ -5,11 +5,11 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-type result_type map[string]interface{}
+type resultType map[string]interface{}
 
-func JsonToMap(json_data []byte) result_type {
-	var result result_type
-	err := json.Unmarshal([]byte(json_data), &result)
+func JsonToMap(jsonData []byte) resultType {
+	var result resultType
+	err := json.Unmarshal([]byte(jsonData), &result)
 	if err != nil {
 		log.Info(err)
 	}
