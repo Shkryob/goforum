@@ -125,7 +125,7 @@ func (handler *Handler) OauthLoginOrSignUp(context echo.Context, email string) e
 
 func (handler *Handler) getUserInfoFromGoogle(conf *oauth2.Config, tok *oauth2.Token) map[string]interface{} {
 	client := conf.Client(oauth2.NoContext, tok)
-	response, err := client.Get(handler.config.Oauth_Google_Open_Id_Config_Url)
+	response, err := client.Get(handler.config.OauthGoogleOpenIdConfigUrl)
 	if err != nil {
 		log.Println(err)
 	}
@@ -149,10 +149,10 @@ func (handler *Handler) OauthGoogle(context echo.Context) error {
 	// Your credentials should be obtained from the Google
 	// Developer Console (https://console.developers.google.com).
 	conf := &oauth2.Config{
-		ClientID:     handler.config.Oauth_Google_Client_Id,
-		ClientSecret: handler.config.Oauth_Google_Client_Secret,
-		RedirectURL:  handler.config.Oauth_Google_Client_Redirect_Url,
-		Scopes:       handler.config.Oauth_Google_Scopes,
+		ClientID:     handler.config.OauthGoogleClientId,
+		ClientSecret: handler.config.OauthGoogleClientSecret,
+		RedirectURL:  handler.config.OauthGoogleClientRedirectUrl,
+		Scopes:       handler.config.OauthGoogleScopes,
 		Endpoint:     google.Endpoint,
 	}
 
@@ -168,7 +168,7 @@ func (handler *Handler) OauthGoogle(context echo.Context) error {
 			log.Println(err2)
 		}
 
-		return context.Redirect(http.StatusSeeOther, handler.config.Auth_Redirect_Url)
+		return context.Redirect(http.StatusSeeOther, handler.config.AuthRedirectUrl)
 	} else {
 		// Redirect user to Google's consent page to ask for permission
 		// for the scopes specified above.
@@ -181,7 +181,7 @@ func (handler *Handler) OauthGoogle(context echo.Context) error {
 func (handler *Handler) getUserInfoFromFacebook(conf *oauth2.Config, tok *oauth2.Token) map[string]interface{} {
 	client := conf.Client(oauth2.NoContext, tok)
 
-	response, _ := client.Get(handler.config.Oauth_Facebook_User_Info_Url + tok.AccessToken)
+	response, _ := client.Get(handler.config.OauthFacebookUserInfoUrl + tok.AccessToken)
 	body, _ := ioutil.ReadAll(response.Body)
 
 	json := utils.JsonToMap(body)
@@ -192,10 +192,10 @@ func (handler *Handler) getUserInfoFromFacebook(conf *oauth2.Config, tok *oauth2
 
 func (handler *Handler) OauthFacebook(context echo.Context) error {
 	conf := &oauth2.Config{
-		ClientID:     handler.config.Oauth_Facebook_Client_Id,
-		ClientSecret: handler.config.Oauth_Facebook_Client_Secret,
-		RedirectURL:  handler.config.Oauth_Facebook_Client_Redirect_Url,
-		Scopes:       handler.config.Oauth_Facebook_Scopes,
+		ClientID:     handler.config.OauthFacebookClientId,
+		ClientSecret: handler.config.OauthFacebookClientSecret,
+		RedirectURL:  handler.config.OauthFacebookClientRedirectUrl,
+		Scopes:       handler.config.OauthFacebookScopes,
 		Endpoint:     facebook.Endpoint,
 	}
 
@@ -211,7 +211,7 @@ func (handler *Handler) OauthFacebook(context echo.Context) error {
 			log.Println(err2)
 		}
 
-		return context.Redirect(http.StatusSeeOther, handler.config.Auth_Redirect_Url)
+		return context.Redirect(http.StatusSeeOther, handler.config.AuthRedirectUrl)
 	} else {
 		url := conf.AuthCodeURL("state")
 
@@ -222,7 +222,7 @@ func (handler *Handler) OauthFacebook(context echo.Context) error {
 func (handler *Handler) getUserInfoFromTwitter(conf *oauth1.Config, tok *oauth1.Token) map[string]interface{} {
 	httpClient := conf.Client(oauth2.NoContext, tok)
 
-	response, _ := httpClient.Get(handler.config.Oauth_Twitter_User_Info_Url)
+	response, _ := httpClient.Get(handler.config.OauthTwitterUserInfoUrl)
 	body, _ := ioutil.ReadAll(response.Body)
 
 	json := utils.JsonToMap(body)
@@ -233,9 +233,9 @@ func (handler *Handler) getUserInfoFromTwitter(conf *oauth1.Config, tok *oauth1.
 
 func (handler *Handler) OauthTwitter(context echo.Context) error {
 	config := &oauth1.Config{
-		ConsumerKey:    handler.config.Oauth_Twitter_Client_Id,
-		ConsumerSecret: handler.config.Oauth_Twitter_Client_Secret,
-		CallbackURL:    handler.config.Oauth_Twitter_Client_Redirect_Url,
+		ConsumerKey:    handler.config.OauthTwitterClientId,
+		ConsumerSecret: handler.config.OauthTwitterClientSecret,
+		CallbackURL:    handler.config.OauthTwitterClientRedirectUrl,
 		Endpoint:       twitter.AuthorizeEndpoint,
 	}
 	requestToken, requestSecret, err := config.RequestToken()
@@ -253,7 +253,7 @@ func (handler *Handler) OauthTwitter(context echo.Context) error {
 			log.Println(err2)
 		}
 
-		return context.Redirect(http.StatusSeeOther, handler.config.Auth_Redirect_Url)
+		return context.Redirect(http.StatusSeeOther, handler.config.AuthRedirectUrl)
 	} else {
 		authorizationURL, err := config.AuthorizationURL(requestToken)
 		if err != nil {

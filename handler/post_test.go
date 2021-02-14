@@ -75,6 +75,24 @@ func TestCreatePostsCaseSuccess(t *testing.T) {
 	}
 }
 
+func TestCreatePostsCaseUnauthorized(t *testing.T) {
+	tearDown()
+	setup()
+	var (
+		reqJSON = `{"post":{"title":"post2", "body":"post2"}}`
+	)
+	jwtMiddleware := middleware.JWT(utils.JWTSecret)
+	req := httptest.NewRequest(echo.POST, "/api/posts", strings.NewReader(reqJSON))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	err := jwtMiddleware(func(context echo.Context) error {
+		return h.CreatePost(c)
+	})(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+}
+
 func TestUpdatePostsCaseSuccess(t *testing.T) {
 	tearDown()
 	setup()
@@ -100,6 +118,28 @@ func TestUpdatePostsCaseSuccess(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "post1 part 2", a.Post.Title)
 	}
+}
+
+func TestUpdatePostsCaseUnauthorized(t *testing.T) {
+	tearDown()
+	setup()
+	var (
+		reqJSON = `{"post":{"title":"post1 part 2"}}`
+	)
+	jwtMiddleware := middleware.JWT(utils.JWTSecret)
+	req := httptest.NewRequest(echo.PUT, "/api/posts/:post_id", strings.NewReader(reqJSON))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(echo.HeaderAuthorization, authHeader(utils.GenerateJWT(2)))
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/api/posts/:post_id")
+	c.SetParamNames("post_id")
+	c.SetParamValues("1")
+	err := jwtMiddleware(func(context echo.Context) error {
+		return h.UpdatePost(c)
+	})(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 
 func TestDeletePostCaseSuccess(t *testing.T) {
@@ -171,6 +211,27 @@ func TestAddCommentCaseSuccess(t *testing.T) {
 		assert.Equal(t, "post1 comment2 by user2", c.Comment.Body)
 		assert.Equal(t, "user2", c.Comment.User.Username)
 	}
+}
+
+func TestAddCommentCaseUnauthorized(t *testing.T) {
+	tearDown()
+	setup()
+	var (
+		reqJSON = `{"comment":{"body":"post1 comment2 by user2"}}`
+	)
+	jwtMiddleware := middleware.JWT(utils.JWTSecret)
+	req := httptest.NewRequest(echo.POST, "/api/posts/:post_id/comments", strings.NewReader(reqJSON))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/api/posts/:post_id/comments")
+	c.SetParamNames("post_id")
+	c.SetParamValues("1")
+	err := jwtMiddleware(func(context echo.Context) error {
+		return h.AddComment(c)
+	})(c)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 
 func TestDeleteCommentCaseSuccess(t *testing.T) {

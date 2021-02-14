@@ -96,6 +96,10 @@ func (handler *Handler) CreatePost(context echo.Context) error {
 
 	post.UserID = userIDFromToken(context)
 
+	if post.UserID == 0 {
+		return utils.ResponseByContentType(context, http.StatusUnauthorized, utils.NewError(errors.New("unauthorized action")))
+	}
+
 	err := handler.postStore.CreatePost(&post)
 	if err != nil {
 		return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
@@ -141,6 +145,10 @@ func (handler *Handler) UpdatePost(context echo.Context) error {
 		return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
 	}
 
+	if post.UserID != userIDFromToken(context) {
+		return utils.ResponseByContentType(context, http.StatusUnauthorized, utils.NewError(errors.New("unauthorized action")))
+	}
+
 	if err = handler.postStore.UpdatePost(post); err != nil {
 		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
@@ -173,6 +181,10 @@ func (handler *Handler) DeletePost(context echo.Context) error {
 
 	if post == nil {
 		return utils.ResponseByContentType(context, http.StatusNotFound, utils.NotFound())
+	}
+
+	if post.UserID != userIDFromToken(context) {
+		return utils.ResponseByContentType(context, http.StatusUnauthorized, utils.NewError(errors.New("unauthorized action")))
 	}
 
 	err = handler.postStore.DeletePost(post)
@@ -221,6 +233,10 @@ func (handler *Handler) AddComment(context echo.Context) error {
 	}
 
 	cm.UserID = userIDFromToken(context)
+
+	if cm.UserID == 0 {
+		return utils.ResponseByContentType(context, http.StatusUnauthorized, utils.NewError(errors.New("unauthorized action")))
+	}
 
 	if err = handler.postStore.AddComment(post, &cm); err != nil {
 		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))

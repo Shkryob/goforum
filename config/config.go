@@ -10,26 +10,26 @@ import (
 )
 
 type Configuration struct {
-	Auth_Redirect_Url string
+	AuthRedirectUrl string
 
-	Oauth_Google_Client_Id           string
-	Oauth_Google_Client_Secret       string
-	Oauth_Google_Client_Redirect_Url string
-	Oauth_Google_Open_Id_Config_Url  string
-	Oauth_Google_User_Info_Url       string
-	Oauth_Google_Scopes              []string
+	OauthGoogleClientId          string
+	OauthGoogleClientSecret      string
+	OauthGoogleClientRedirectUrl string
+	OauthGoogleOpenIdConfigUrl   string
+	OauthGoogleUserInfoUrl       string
+	OauthGoogleScopes            []string
 
-	Oauth_Facebook_Client_Id           string
-	Oauth_Facebook_Client_Secret       string
-	Oauth_Facebook_Client_Redirect_Url string
-	Oauth_Facebook_User_Info_Url       string
-	Oauth_Facebook_Scopes              []string
+	OauthFacebookClientId          string
+	OauthFacebookClientSecret      string
+	OauthFacebookClientRedirectUrl string
+	OauthFacebookUserInfoUrl       string
+	OauthFacebookScopes            []string
 
-	Oauth_Twitter_Client_Id           string
-	Oauth_Twitter_Client_Secret       string
-	Oauth_Twitter_Client_Redirect_Url string
-	Oauth_Twitter_Client_Bearer_Token string
-	Oauth_Twitter_User_Info_Url       string
+	OauthTwitterClientId          string
+	OauthTwitterClientSecret      string
+	OauthTwitterClientRedirectUrl string
+	OauthTwitterClientBearerToken string
+	OauthTwitterUserInfoUrl       string
 }
 
 func ReadConfig() Configuration {
